@@ -1,0 +1,22 @@
+# Archivos de configuración local (contienen credenciales)
+config.properties
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Otros
+.classpath
+.project
+.settings/

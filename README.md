@@ -17,12 +17,15 @@ This application connects to a MongoDB Atlas cluster and performs CRUD (Create, 
 ```
 src/
 ├── main/
-│   └── java/
-│       └── com/
-│           └── example/
-│               └── app/
-│                   ├── App.java              # Main application
-│                   └── MovieRepository.java  # Repository for movie operations
+│   ├── java/
+│   │   └── com/
+│   │       └── example/
+│   │           └── app/
+│   │               ├── App.java              # Main application
+│   │               ├── ConfigManager.java    # Configuration manager for credentials
+│   │               └── MovieRepository.java  # Repository for movie operations
+│   └── resources/
+│       └── config.properties                 # MongoDB credentials (not in Git)
 └── test/
     └── java/
         └── com/
@@ -66,6 +69,34 @@ The `sample_mflix` database contains the following collections:
 #### Delete
 - `deleteMovieById(ObjectId id)` - Delete a movie by ID
 
+## Configuration
+
+### Setup MongoDB Credentials
+
+Before running the application, you need to configure your MongoDB credentials:
+
+1. **Create the configuration file** at `src/main/resources/config.properties`:
+
+```properties
+# MongoDB Configuration
+db.user=your_mongodb_username
+db.password=your_mongodb_password
+db.host=your_cluster.mongodb.net
+db.name=your_app_name
+```
+
+2. **Replace the values** with your MongoDB Atlas credentials:
+   - `db.user`: Your MongoDB username
+   - `db.password`: Your MongoDB password (without URL encoding)
+   - `db.host`: Your cluster host (e.g., `cluster0.abc123.mongodb.net`)
+   - `db.name`: Your application name
+
+3. **Important**: The `config.properties` file should be in `.gitignore` to keep credentials secure.
+
+> **Note**: The application automatically handles URL encoding for special characters in passwords (like `@`, `#`, etc.).
+
+For detailed setup instructions, see [SETUP_CONFIG.md](SETUP_CONFIG.md).
+
 ## Running the Application
 
 ### Build the project
@@ -82,6 +113,8 @@ mvn test
 ```bash
 mvn exec:java
 ```
+
+The application will automatically exit cleanly after completing all operations.
 
 ## What the Application Does
 
@@ -174,9 +207,18 @@ A typical movie document in the collection includes:
 }
 ```
 
-## Notes
+## Security
 
-- The connection string in `App.java` contains URL-encoded credentials
+- **Credentials are stored separately** in `config.properties` (not in source code)
+- **URL encoding is automatic** - the application handles special characters in passwords
+- **config.properties is git-ignored** to prevent credential exposure
+- **ConfigManager class** provides centralized credential management
+
+## Technical Notes
+
 - The application uses MongoDB's ServerAPI V1 for stable API compatibility
+- Credentials are URL-encoded automatically using `URLEncoder` to handle special characters
+- The connection string is built dynamically at runtime from separate configuration values
 - Test operations (create/update/delete) are performed on temporary test data
 - The application automatically cleans up test data after demonstrating operations
+- The application exits cleanly with proper resource cleanup (try-with-resources)

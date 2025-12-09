@@ -11,12 +11,70 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class App {
     public static void main(String[] args) {
-        String connectionString = "mongodb+srv://metalex84:ktmEXC-2025%40@cluster0.g2mpfuw.mongodb.net/?appName=Cluster0";
+        // Cargar las credenciales de forma separada desde el archivo de configuración
+        String dbUser;
+        String dbPassword;
+        String dbHost;
+        String dbName;
+        
+        try {
+            dbUser = ConfigManager.getDbUser();
+            dbPassword = ConfigManager.getDbPassword();
+            dbHost = ConfigManager.getDbHost();
+            dbName = ConfigManager.getDbName();
+        } catch (RuntimeException e) {
+            System.err.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.err.println("ERROR: No se pudo cargar el archivo de configuración");
+            System.err.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.err.println();
+            System.err.println("Para conectarse a MongoDB, necesitas crear un archivo de configuración.");
+            System.err.println();
+            System.err.println("PASOS A SEGUIR:");
+            System.err.println();
+            System.err.println("1. Crea un archivo llamado 'config.properties' en src/main/resources/");
+            System.err.println();
+            System.err.println("2. Agrega el siguiente contenido al archivo:");
+            System.err.println();
+            System.err.println("   ┌─────────────────────────────────────────────────────────┐");
+            System.err.println("   │ db.user=tu_usuario_mongodb                              │");
+            System.err.println("   │ db.password=tu_contraseña_mongodb                       │");
+            System.err.println("   │ db.host=tu_cluster.mongodb.net                          │");
+            System.err.println("   │ db.name=nombre_de_tu_aplicacion                         │");
+            System.err.println("   └─────────────────────────────────────────────────────────┘");
+            System.err.println();
+            System.err.println("3. Reemplaza los valores con tus credenciales de MongoDB Atlas:");
+            System.err.println("   - db.user: Tu nombre de usuario de MongoDB");
+            System.err.println("   - db.password: Tu contraseña de MongoDB");
+            System.err.println("   - db.host: El host de tu cluster (ej: cluster0.abc123.mongodb.net)");
+            System.err.println("   - db.name: El nombre de tu aplicación");
+            System.err.println();
+            System.err.println("NOTA: Asegúrate de que config.properties esté en tu .gitignore");
+            System.err.println("      para no subir tus credenciales al repositorio.");
+            System.err.println();
+            System.err.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.err.println();
+            System.err.println("Causa del error: " + e.getMessage());
+            System.err.println();
+            System.exit(1);
+            return;
+        }
+        
+        // Construir la cadena de conexión sin exponer credenciales en el código fuente
+        // Codificar usuario y contraseña para manejar caracteres especiales
+        String encodedUser = URLEncoder.encode(dbUser, StandardCharsets.UTF_8);
+        String encodedPassword = URLEncoder.encode(dbPassword, StandardCharsets.UTF_8);
+        
+        String connectionString = String.format(
+            "mongodb+srv://%s:%s@%s/?retryWrites=true&w=majority&appName=%s",
+            encodedUser, encodedPassword, dbHost, dbName
+        );
 
         ServerApi serverApi = ServerApi.builder()
                 .version(ServerApiVersion.V1)
@@ -146,10 +204,14 @@ public class App {
             } catch (MongoException e) {
                 System.err.println("MongoDB error occurred:");
                 e.printStackTrace();
+                System.exit(1);
             }
         } catch (Exception e) {
             System.err.println("Error occurred:");
             e.printStackTrace();
+            System.exit(1);
         }
+        
+        System.exit(0);
     }
 }

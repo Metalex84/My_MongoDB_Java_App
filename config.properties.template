@@ -1,0 +1,17 @@
+# Configuración de MongoDB
+# INSTRUCCIONES:
+# 1. Copia este archivo como "src/main/resources/config.properties"
+# 2. Reemplaza los valores con tus credenciales reales
+# 3. config.properties está en .gitignore, no será versionado
+
+# Usuario de la base de datos
+db.user=TU_USUARIO
+
+# Contraseña de la base de datos
+db.password=TU_CONTRASEÑA
+
+# Host de MongoDB (sin la parte de autenticación)
+db.host=cluster0.g2mpfuw.mongodb.net
+
+# Nombre de la base de datos
+db.name=NOMBRE_DB
